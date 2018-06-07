@@ -1,0 +1,394 @@
+PREPROCESSING
+	import the libraries
+	import the dataset
+	inspect the dataset
+		inspect pandas fonctions
+		eda for data scientist with visualization to better understand the dataset
+	create dependent independent matrix
+	deal with missing data
+		mean
+		median
+		mode
+	encode categorical data : many algorithms know some of them
+		integer encoding
+			natural order
+		binary encoding
+			dummy variables
+			one hot encoder
+			no natural order
+		categorical
+			continuous discrete
+			discrete
+	split data into training and test set
+		seed
+		80:20
+	feature scaling
+		dependent variables
+		independent variables only for regression
+
+REGRESSION
+	Forecasting vs Predicting
+		Forecasting : model forecasts future value => y = f( Time)
+		Predicting : model predict present unknown values => y = f(!Time)
+	Techniques and Models
+		SLR, MLR, PR, SVR, Decision Tree Regression, Random Forest Regression, Evaluating Regression Models Performance
+	SLR
+		Mathematics (PODS) : go deep only if you have to use it in your job
+			pearson, p value, least square, confidence interval 
+		Example
+			Salary = f(YearsXP)
+			Grade = f(NbHoursStudied) #not really true, since hardwork and smartwork are different !
+	MLR
+		General equation
+		y = bo + b1 x1 + b2 x2 + b3 x3 (multiple independent variables)
+			grade = b0 + b1 TimeStudy + b2 TimeSleptBeforeExam + b3 NumberLectureAttended
+		Assumption of linear regression
+			Linearity, Homoscedascity,  Multivariate  normality, Independance of errors, Lack of multicollinearity
+		MLR and categorical variable to dummy variables
+			startup(profit,rdspend,admin,marketing,state[NY,CALI])
+			startupDummy(profit,rdspend,admin,marketing,NY,CALI)
+			profit = b0 + b1*rdspend + b2*admin + b3*marketing + b4*NY + [b5*CALI : NO]
+				because when NY is 1, Cali is 0 so no need to include both variables = Dummy Variable trap
+		Dummy variable trap
+			It is a bad idea to include all dummy variables in the equation
+			Multicolinearity
+				One or several independant variables predict another
+				profit = b0 + b1*rdspend + b2*admin + b3*marketing + b4*NY + [b5*CALI : NO]
+				profit = b0 + b1*rdspend + b2*admin + b3*marketing + b4*D1 + [b5*D2: NO]
+					with D2 = 1 - D1 implies CALI predict NY therefore do not put both in the same model
+					profit = [b0+b5] + b1*rdspend + b2*admin + b3*marketing + (b4-b5)*D1 + [b5*D2: NO]
+					having bo constant and both dummy variables is the dummy variable trap
+		Solution to dummy variable trap
+			If N dummy variables, put N-1 in the model
+		P VALUE
+			https://www.mathbootcamps.com/what-is-a-p-value/
+				small p value , reject the hypothesis
+				assume the null hypothesis is true, determine how strange our sample is based on pvalue, 
+					if not strange (large p value) we keep null hypothesis
+					otherwise (small p value) we reject null hypothesis
+						small p value : il y a peu de chance que hoce soit vraie
+						large p value : il y a beaucoup de chance que ho soit vraie
+						small p value means by pure lock and if null hyp is true, it would be unlikely to have a sample like ours
+						large p value and if null hyp is true, it would be normal to have a sample like our
+				p value definition
+					Probability that if null hyp were true
+					Mesure la probabilité davoir un indicateur comme ca dans le sample que Ho soit vraie
+					How likely to get a result like this if the null hypothesis is true
+					If the null hypothesis is true, then we are pvalue % likely to get a result like this
+				chocolate example
+					70g nut for 200g chocolate
+					open all chocolate to check impossible
+					statistical test on a sample
+						null hypothesis Ho : The mean or average weight of peanut in 200g chocolate is equal or greater than 70g
+						alternative hypothesis H1 : is least than 70g
+						significance level of p value : alpha = 0.05 = 5%
+							If the p value lower than alpha = 5 % , reject null hypothesis
+						take random sample of 20 chocolats out of 400 choco and weights peanuts in each 20 packets
+							[v1 = 30g, v2 = 40g, v3 = 50g ...] => mean = 68,7 g 
+							is it the reality or result from lock ?
+								find p value with excel : 18%
+								if the mean weight of peanut in the population is 70 g or more then
+								There is 18% chance of getting a mean of 68,7g or lower from a sample of this size
+								The smaller the p value is, the least likely is the result we got (68,7g) was a result of luck
+									if p value was 5%
+				general template : p value is used in a designed experience to reject or confirm a null hypothesis
+					assume null hyptohesis about one statistic
+					define a significance level of p value
+					take sample
+					get a stat (mean,avg) on the sample
+					compute p value to measure if the stat is due to luck or not if the ho is true
+						68 avg and p value 18%
+						76 avg and p value 80 %
+					reject ho and confirm h1 or the contrary
+						small p value => significant result that h0 is false
+						large p value => non significant result that ho is false
+		BUILD A MODEL
+			feature selction : y = f(x1,x2,x3,x4,x500)
+			pdf template : 5 methods of building a regression model
+				1 all in,  stepwise Regression(2 backward elimination, 3 forward selection,  4 bidirectional elimination), 5 score comparison
+			When to use all-in ?
+				all in = take all independant variables
+				you have to, or you know all independant variables are important
+				before backward elimination
+			Backward elimination
+				1) Select a significance level to stay in the model : by default we take SL = 5%
+				2)Fit the full model with all possible predictors
+				3)Consider the predictor with highest p value
+					if p > SL go to step 4
+					otherwise go to fin
+				4)Remove the predictor
+				5)Fit a new model without this variable
+				3)Look for the variable with the highest p value, take it out, fit a new model until having P < SL then the model i ready
+			Forward selection
+				1)Select a significance level to enter in the model : by default we take SL = 5%
+				2) Fit all possible SLR , compute the p value , select the one with the lowest p value
+					y ~ x1 => p1
+					y ~x500 => p2
+				3) Do a MLR with two variables including the previous one selected, select the model with the lowest p value
+					y ~b1*x1 + b2*x2 => p12
+					y ~b1*x1 + b3*x3 => p13
+				4)Consider predictor with lowest p value.
+					if p < SL 
+						go to step 3 to do a MLR with one more variable , 
+						keep growing our model
+					otherwise : p > SL , that variable is not significant anymore, si la plus petite est > SL , toutes les autres sont > SL
+						go to fin
+				5)Keep the previous model
+			Bidirectional elimination
+				1)Select a significance level to enter and to stay in the model
+					SLENTER = 5%
+					SLSTAY = 5%
+				2)Perform next step of forward selection
+					new variables must have p < SLENTER to enter
+				3)Perform all steps of backward elimination
+					old variables must have p < SLSTAY to stay
+				4)Repeat
+					keep going to step 2
+					until no new variable can enter or exit
+			All possible models
+				1)Select a criterion of goodness of fit (ex Akaike criterion)
+				2)Construct all possible regression models (2^N - 1)
+				3)Select the one with the best criterion
+				Fin)Your model is ready
+				Example)
+					10 columns means 1023 models
+		PREPROCESSING
+			import the dataset
+			choose model : 
+				MLR, we are looking for linear dependency between dependent and independent variables
+			create depedent and independent matrix
+				Qu'est ce qu'un type object ?
+					Matrix with many types in it.
+				Scikit learn cheatsheet
+					https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Scikit_Learn_Cheat_Sheet_Python.pdf
+	MLR AND BACKWARD 
+		PREPRO
+			import the dataset
+			split into independent and dependent variables
+			encode categorical variables into dummy variables
+			avoid dummy trap
+			create independent variable : add intercept , because the library used doesnt include the intercept
+			
+		PRO
+			build the optimal model using backward elimination
+			import statmodel library
+			turn backward elimination and eliminate based on pvalue
+			better elimination : rsquared, adjust rsqured
+			better programming : auto backward elimination
+		
+		do kaggle exo MLR, yt, real life application
+
+BRAINSTORM
+	TODAY
+		ml, github, chess, guitar, movie, sport, nlp video, live project, mlr kaggle, recreate library algo to be good in python, python list (filter map reduce) cheatsheet
+		ml prepro encoding categ into numeric (many algo know them by name)
+		save it to github
+		the 100
+		cv lm
+	MODELS
+		PCA
+	cv, lm, exasol, isep apc, gym,visit mcr, notebook, spyder pro, mam data intelligence, nam quick, vieps sacha tuto 2j,
+	fiche 2nd semester, visa form school op fistula, industry, private sector questions, gym ml
+	dassi
+		fiches data analyst : parler en sql, engine traduit en binary
+		hadoop https://en.wikipedia.org/wiki/Apache_Hadoop
+		data science repository
+		meetup
+			challenge data visu
+				https://challenge.threesixtygiving.org/
+				https://www.threesixtygiving.org/2018/04/27/awarding-20000-prizes-first-visualisation-challenge-heres/
+				https://www.meetup.com/Open-Data-Manchester/events/250572624/
+		data visu tools
+			visu ted
+		command line
+		design databasse udemy
+		hackaton
+		portfolio
+		kaggle
+		python for data science
+		jose portilla
+		sql languages cheatsheet
+		dassi cheatsheet
+		visu fiche, one variable, two variables discrete continuous
+		statiscal analysis
+		eda uni bivariate
+		learning path
+		be careful by heart 80/20
+		timetable
+		stat : pearson, t test maths
+		eda for ds
+		eda for manager : sql r python impala spark
+		eda prepro pro fiche
+		gfasms simple cheatsheet
+		clean asus, 16go ram
+		self d
+		recherche op
+		economy theorie des jeux et data science
+		open dataset crime, football
+		business application in real life data science
+		business analytics
+		matplotlib ggplot level, python for DS
+		ml big data
+		ml alteryx
+		mam data intelligence
+		ssrs ssis ssas
+		raja neo4j
+		gym workout whole body : db expert, db engineer, data analyst, data scientist, IA
+		remember by heart fifa process 5 questions
+			input output script comments
+			EDA = stats models (select from where group by having order by limit ),create view as, key values system
+				join,set operations
+				filter row and columns
+				per group functions
+				udf columns : avg = nbtweets/duration, make new columns
+				aggregate summary stat : count, sum
+				udf columns
+				sort : double, multi
+				rank
+		EDA en un coup doeil
+		mix logiciel
+			Tableau, Alteryx EDA, python ML
+		fat ds tuto sds
+		stat analysis
+			anova, t test, cosine similarity
+		exos open dataset EDA, kaggle
+		analytics vidhya
+		twitter sentiment analysis
+		james dayhuff , eda r
+	mood
+		bebi phillip
+		nam chap
+		carie, un seul doigt qui bouge, mal cuit, dead angine
+		speed
+			piano brayan ordi, rendu sons
+		success overtime, expo effect
+			maths a2
+		ngolo learning
+	stage
+		postuler uk
+		cv lm present apc
+	end salford
+		flight ticket
+		boxes carton
+	ml
+		bash script to automatiser
+		coder soi meme un slr
+		notebook for reporting
+		useful plugins like R markdown, jupyter notebook
+		kaggle compet, code libraries yourself sirrij youtube
+		speed Mbappé
+			speed like piano bebi philip
+		recreate algorithm in sklearn
+		recreate scikitlearn library algorithms to be strong
+		coursera maths tuto
+		airplane/f1/astronaut pilot : mechanical engineer + pilot !
+		all models on iris dataset like 4 chords (python for DS)
+		tools for ds like github 80/20
+		study research papers
+	english
+		come on man, us expressions
+		listening
+			easier than bus chester game
+			spanish french
+		grammar
+			wishes
+			mind mapp
+		speaking
+			chile accent
+	guitar
+		one song per day
+			same love macklemore
+			another love
+			waves mr prob
+			afro trap 5
+		ear
+			https://www.youtube.com/watch?v=SFzYo0oYCCk
+			tools apps 
+			https://www.youtube.com/watch?v=dZStDrKOk98
+			https://www.youtube.com/watch?v=g9CVXT8fOdw
+			https://www.youtube.com/watch?v=tuDjDkHmaF4
+			https://www.youtube.com/watch?v=9bQouq9a_CA
+			https://www.youtube.com/results?search_query=root+note+ear
+			Sungha Jung
+		rythm
+			compas
+			beatbox
+			renoi digba bouche
+	op fistula
+		no sql exasol
+			http://www.jenunderwood.com/2017/03/06/introduction-exasol-database-analytics/
+			https://db-engines.com/en/system/EXASOL
+			https://github.com/EXASOL/database-migration/blob/master/sqlserver_to_exasol.sql
+			https://www.computing.co.uk/ctg/analysis/2378456/looking-beyond-oracle-two-high-end-sql-databases-you-may-never-have-heard-of
+			https://www.exasol.com/portal/display/DOC/Storage
+			https://www.exasol.com/portal/display/DOC/Planning+Guide
+			good report structure on exasol
+				https://intranet.birmingham.ac.uk/it/innovation/documents/public/Experiments/InMemoryComputingExasolEvaluation-17May2016.pdf
+			https://www.digitalmarketplace.service.gov.uk/g-cloud/services/368374857092534
+			https://interworks.com/blog/achinnaswamy/2017/05/01/intro-exasol-memory-analytics/
+			https://www.google.co.uk/imgres?imgurl=https%3A%2F%2Fi2.wp.com%2Fwww.jenunderwood.com%2Fwp-content%2Fuploads%2F2017%2F03%2Foverview_arch.png%3Fresize%3D569%252C498&imgrefurl=http%3A%2F%2Fwww.jenunderwood.com%2F2017%2F03%2F06%2Fintroduction-exasol-database-analytics%2F&docid=VN_l40vHjKd3XM&tbnid=i6sMnsFN8VS2LM%3A&vet=10ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwg_KAkwCQ..i&w=569&h=498&bih=560&biw=1269&q=exasol&ved=0ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwg_KAkwCQ&iact=mrc&uact=8
+			https://www.google.co.uk/imgres?imgurl=https%3A%2F%2Fwww.exasol.com%2Fportal%2Fdownload%2Fattachments%2F17238042%2FArchitecture.png%3Fversion%3D1%26modificationDate%3D1476370015000%26api%3Dv2&imgrefurl=https%3A%2F%2Fwww.exasol.com%2Fportal%2Fdisplay%2FDOC%2FCluster%2BArchitecture&docid=0Z7fPEpxm1neiM&tbnid=kYxG3WFF7QNaFM%3A&vet=10ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwhGKBAwEA..i&w=990&h=1123&bih=560&biw=1269&q=exasol&ved=0ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwhGKBAwEA&iact=mrc&uact=8
+				concurrents
+					https://www.google.co.uk/imgres?imgurl=https%3A%2F%2Fimage.slidesharecdn.com%2Fmiri8ems8okqdjarht9d-signature-b74b6da01f3d030d5fe8fcd10c4c17f2b0e8c801933c00bd363e808c05fe50eb-poli-141003122242-phpapp02%2F95%2Fdave-shuttleworth-platform-performance-comparisons-bare-metal-and-cloud-hosting-alternatives-6-638.jpg%3Fcb%3D1412339246&imgrefurl=https%3A%2F%2Fwww.slideshare.net%2Fhuguk%2Fds-london-hug-presentation-09-2014-v4&docid=WBrXkpMm-u7nQM&tbnid=2AT57aXV3LlZhM%3A&vet=10ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwhgKCAwIA..i&w=638&h=442&bih=560&biw=1269&q=exasol&ved=0ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwhgKCAwIA&iact=mrc&uact=8
+				bi architecture
+					https://www.google.co.uk/imgres?imgurl=https%3A%2F%2Fimage.slidesharecdn.com%2Fmodulbiplattform-de-130315074905-phpapp01%2F95%2Fexasol-best-of-breed-architektur-in-business-intelligence-2-638.jpg%3Fcb%3D1363334352&imgrefurl=https%3A%2F%2Fde.slideshare.net%2Fexasolag%2Fmodul-bi-plattformde&docid=S-5kbD91Gi4L2M&tbnid=BBB1oGT_gEOUDM%3A&vet=10ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwiJAShJMEk..i&w=638&h=442&bih=560&biw=1269&q=exasol&ved=0ahUKEwiwy4vKwK7bAhULJ8AKHSxCAe8QMwiJAShJMEk&iact=mrc&uact=8
+				cluster architecture
+					https://www.exasol.com/portal/display/DOC/Cluster+Architecture
+		stack other companies
+		commcare
+		ALTERYX  wikis
+		
+	pd
+		procra en meme temps
+		cz
+			sommeil
+		motivation
+			a day in the life
+	books
+		cz
+			ohplai, renoi chocho, will pertubateur
+		10x rules
+		5 seconds rules
+		80/20
+		self d
+		ferguson
+		wall street wolf
+	reporting 
+		word,excel,ppt,lucidchart,mindmapp, productivity tools, winodws samsung pro
+	soldes
+		mcr
+		paris 
+		amazon
+		ram
+		ralph lau
+		chelsea shirt
+	timeline foodora
+		report isep erasmus
+		report apc
+		desabonner netflix, amazon
+		caf 
+		foodora
+		cv
+		lm
+		trip
+		timeline
+		timetable implies discipline as if I were goin to school
+	act as if
+		Numeris
+		Timetable school
+	chess
+	photo
+	ted talks
+		first 20 hours
+		procra
+		visu
+	stage
+		cv + portfolio datascience
+			https://www.youtube.com/watch?v=xrhPjE7wHas
+	pro
+		backup
+			https://help.github.com/articles/what-is-my-disk-quota/
+
+	qg
+		docu coree
+

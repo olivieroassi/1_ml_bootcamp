@@ -1,0 +1,53 @@
+#initialize git project
+cd C:\Users\Oliver\Downloads\forever\020618_bootcamp_ml
+mkdir 11_ml_bootcamp_git
+copy 6_1_Multiple_Linear_Regression.py 11_ml_bootcamp_git\0_6_1_Multiple_Linear_Regression.py
+cd 11_ml_bootcamp_git
+git init
+
+
+#cut dev version in MLR.py
+
+#add and commit update
+git add 0_6_1_Multiple_Linear_Regression.py
+git commit -m "MLR with comments"
+
+#check different update insert delete create, timeline commit
+git log
+
+#add dev version
+
+#add and commit update
+git add 0_6_1_Multiple_Linear_Regression.py
+git commit -m "MLR with comments plus dev version"
+git log
+
+#check different update insert delete create, timeline commit
+git log
+
+#branching : create and select dev_version_MLR branch
+git branch #list branches, master branche principale
+git branch dev_version_MLR
+git branch
+git checkout dev_version_MLR #select current branch , it copies master files to that branch
+git branch #check whether the right branch is selected
+
+#delete comments in 6_1_Multiple_Linear_Regression
+
+#add,commit,log
+git add 0_6_1_Multiple_Linear_Regression.py
+git commit -m "MLR only dev version"
+git log
+
+#github : cloud, web server, remote access to backup restore versions and collaborate
+	#create remote directory on github
+		github>new repo : ml_bootcamp
+	#link remote github directory to localhost directory : git push
+		git remote add origin https://github.com/olivieroassi/1_ml_bootcamp.git
+	#check if it is linked : origin is a remote deposit ok
+		git remote 
+	#push project to origin deposit and master branch
+		git push origin master
+		git push origin dev_version_MLR
+
+
